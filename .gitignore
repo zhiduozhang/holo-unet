@@ -103,3 +103,9 @@ data
 hm.csv
 hm_np.csv
 fastai
+node_modules/
+SB-Admin-BS4-Angular-6/
+webapp/
+papers/
+
+package-lock\.json
