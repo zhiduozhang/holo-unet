@@ -50,6 +50,8 @@ if sum(curve(:))==0;
     intensity=intensity(cut:yy-cut,cut:xx-cut);
     [curve] = cruveremoval(pp);
     phase=pp-curve;
+    csvwrite('pp.csv',pp);
+    csvwrite('curve.csv',curve);
 else
     pp=pp(cut:yy-cut,cut:xx-cut);
     phase=pp-curve;

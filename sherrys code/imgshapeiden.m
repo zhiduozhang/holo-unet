@@ -91,6 +91,9 @@ if halfy>halfacuy
 else
     BoundingBox(2)=po(2)-halfy;
 end
+
+BoundingBox = [390,272.5,203,100];
+
 %%
 % amount = inc+0.3;
 %  BoundingBox(1:2) = BoundingBox(1:2) - BoundingBox(3:4)*(amount/2);
