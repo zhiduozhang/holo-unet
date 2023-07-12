@@ -40,21 +40,23 @@ if showif==1
     xlabel('(d)','FontSize',11) ;
 end
 %% ifft
-centeredImage_s = ifft2(fftshift(centeredfft_sample));
+centeredImage_s = ifft2(ifftshift(centeredfft_sample));
 %% unwrap the phase image
 f=angle(centeredImage_s);
 intensity=abs(centeredImage_s);
+imagesc(f);
 pp =double( Miguel_2D_unwrapper(single(f)));
+%pp =double(unwrap_phase(f));
 if sum(curve(:))==0;
-    pp=pp(cut:yy-cut,cut:xx-cut);
-    intensity=intensity(cut:yy-cut,cut:xx-cut);
+    %pp=pp(cut:yy-cut,cut:xx-cut);
+    %intensity=intensity(cut:yy-cut,cut:xx-cut);
     [curve] = cruveremoval(pp);
     phase=pp-curve;
-    csvwrite('pp.csv',pp);
-    csvwrite('curve.csv',curve);
+    %csvwrite('pp.csv',pp);
+    %csvwrite('curve.csv',curve);
 else
-    pp=pp(cut:yy-cut,cut:xx-cut);
+    %pp=pp(cut:yy-cut,cut:xx-cut);
     phase=pp-curve;
-    intensity=intensity(cut:yy-cut,cut:xx-cut);
+    %intensity=intensity(cut:yy-cut,cut:xx-cut);
 end
 

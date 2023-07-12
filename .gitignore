@@ -109,3 +109,11 @@ webapp/
 papers/
 
 package-lock\.json
+
+*.zip
+
+*.DESKTOP-H4M9UK9
+
+*
+
+!*.ipynb

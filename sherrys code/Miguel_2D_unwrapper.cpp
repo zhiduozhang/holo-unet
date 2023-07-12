@@ -5,7 +5,7 @@
 //published in the Applied Optics, Vol. 41, No. 35, pp. 7437, 2002.
 //This program is written on 15th August 2007
 //The wrapped phase map is floating point data type. Also, the unwrapped phase map is foloating point
-#include <sys/malloc.h>
+//#include <sys/malloc.h>
 #include<stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -288,9 +288,17 @@ int find_wrap(float pixelL_value, float pixelR_value)
 	int wrap_value;
 	difference = pixelL_value - pixelR_value;
 
-	if (difference > PI)	wrap_value = -1;
-	else if (difference < -PI)	wrap_value = 1;
-	else wrap_value = 0;
+	if (difference > PI){	
+        //mexPrintf("Wrapping\n");
+        wrap_value = -1;
+    }
+	else if (difference < -PI){
+        //mexPrintf("Wrapping\n");
+        wrap_value = 1;
+    }
+	else {
+        wrap_value = 0;
+    }
 
 	return wrap_value;
 } 
@@ -330,6 +338,7 @@ void  horizentalEDGEs(PIXEL *pixel, EDGE *edge, int image_width, int image_heigh
 	int i, j;
 	EDGE *edge_pointer = edge;
 	PIXEL *pixel_pointer = pixel;
+    char mybuff1[50];
 	
 	for (i = 0; i < image_height; i++)
 	{
@@ -339,6 +348,12 @@ void  horizentalEDGEs(PIXEL *pixel, EDGE *edge, int image_width, int image_heigh
 			edge_pointer->pointer_2 = (pixel_pointer+1);
 			edge_pointer->reliab = pixel_pointer->reliability + (pixel_pointer + 1)->reliability;
 			edge_pointer->increment = find_wrap(pixel_pointer->value, (pixel_pointer + 1)->value);
+            if(edge_pointer->increment != 0){
+                //mexPrintf("Inc\n");
+                sprintf (mybuff1, "%d", edge_pointer->increment);
+                //mexPrintf(mybuff1);
+                //mexPrintf("\n");
+            }
 			pixel_pointer++;
 			edge_pointer++;
 		}
@@ -355,6 +370,7 @@ void  verticalEDGEs(PIXEL *pixel, EDGE *edge, int image_width, int image_height)
 	
 	PIXEL *pixel_pointer = pixel;
 	EDGE *edge_pointer = edge + (image_height) * (image_width - 1); 
+    char mybuff1[50];
 
 	for (i=0; i<image_height - 1; i++)
 	{
@@ -364,6 +380,12 @@ void  verticalEDGEs(PIXEL *pixel, EDGE *edge, int image_width, int image_height)
 			edge_pointer->pointer_2 = (pixel_pointer + image_width);
 			edge_pointer->reliab = pixel_pointer->reliability + (pixel_pointer + image_width)->reliability;
 			edge_pointer->increment = find_wrap(pixel_pointer->value, (pixel_pointer + image_width)->value);
+            if(edge_pointer->increment != 0){
+                //mexPrintf("Inc\n");
+                sprintf (mybuff1, "%d", edge_pointer->increment);
+                //mexPrintf(mybuff1);
+                //mexPrintf("\n");
+            }
 			pixel_pointer++;
 			edge_pointer++;
 		} //j loop
@@ -374,6 +396,7 @@ void  verticalEDGEs(PIXEL *pixel, EDGE *edge, int image_width, int image_height)
 void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 {
 	int k;
+    char mybuff1[50], mybuff2[50],mybuff3[50];
 	
 	//Number of rialiable edges (not at the borders of the image)
 	int no_EDGEs = (image_width - 1) * (image_height) + (image_width) * (image_height - 1); 
@@ -395,11 +418,23 @@ void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 		//no else or else if to this if
 		if (PIXEL2->head != PIXEL1->head)
 		{
+            
+            /*sprintf (mybuff1, "%f", pointer_edge->reliab);
+            sprintf (mybuff2, "%f", PIXEL1->value);
+            sprintf (mybuff3, "%f", PIXEL2->value);
+            mexPrintf("Pix A: ");
+            mexPrintf(mybuff2);
+            mexPrintf(" - Pix B: ");
+            mexPrintf(mybuff3);
+            mexPrintf(" - ");
+            mexPrintf(mybuff1);
+            mexPrintf(" - ");*/
 			//PIXEL 2 is alone in its group
 			//merge this pixel with PIXEL 1 group and find the number of 2 pi to add 
 			//to or subtract to unwrap it
 			if ((PIXEL2->next == NULL) && (PIXEL2->head == PIXEL2))
 			{
+                //mexPrintf("New B\n");
 				PIXEL1->head->last->next = PIXEL2;
 				PIXEL1->head->last = PIXEL2;
 				(PIXEL1->head->number_of_pixels_in_group)++;
@@ -412,6 +447,7 @@ void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 			//to or subtract to unwrap it
 			else if ((PIXEL1->next == NULL) && (PIXEL1->head == PIXEL1))
 			{
+                //mexPrintf("New A\n");
 				PIXEL2->head->last->next = PIXEL1;
 				PIXEL2->head->last = PIXEL1;
 				(PIXEL2->head->number_of_pixels_in_group)++;
@@ -431,6 +467,7 @@ void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 				//the no. of wraps will be added to PIXEL 2 grop in the future
 				if (group1->number_of_pixels_in_group > group2->number_of_pixels_in_group)
 				{
+                    //mexPrintf("Big A\n");
 					//merge PIXEL 2 with PIXEL 1 group
 					group1->last->next = group2;
 					group1->last = group2->last;
@@ -452,6 +489,7 @@ void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 				//the no. of wraps will be added to PIXEL 1 grop in the future
 				else
                 {
+                    //mexPrintf("Big B\n");
 					//merge PIXEL 1 with PIXEL 2 group
 					group2->last->next = group1;
 					group2->last = group1->last;
@@ -464,10 +502,11 @@ void  gatherPIXELs(EDGE *edge, int image_width, int image_height)
 						group1->increment += incremento;
 						group1 = group1->next;
 					} // while
-
                 } // else
             } //else
-        } ;//if
+        } else {
+            //mexPrintf("Same group\n");   
+        };//if
 
         pointer_edge++;
 	}
@@ -530,23 +569,74 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	EDGE *edge = (EDGE *) calloc(No_of_Edges, sizeof(EDGE));;
 
 	//initialise the pixels
-	initialisePIXELs(WrappedImage, pixel, image_width, image_height);
+    mexPrintf("Initialising pixels\n");
+	initialisePIXELs(WrappedImage, pixel, image_width, image_height); 
 
-	calculate_reliability(WrappedImage, pixel, image_width, image_height);
-
+    mexPrintf("Calculating reliabililty\n");
+    
+	calculate_reliability(WrappedImage, pixel, image_width, image_height); //
+    
+    PIXEL *pixel_pointer = pixel;
+    char mybuff1[50],mybuff2[50],mybuff3[50],mybuff4[50];
+   
+    /*for(i=0; i<image_size;++i){
+        sprintf (mybuff1, "%f", pixel_pointer->reliability);
+        mexPrintf(mybuff1);
+        mexPrintf("\n");
+        pixel_pointer++;
+    }*/
+    
+    mexPrintf("Gathering edges\n");
+    
 	horizentalEDGEs(pixel, edge, image_width, image_height);
-
 	verticalEDGEs(pixel, edge, image_width, image_height);
 
+    mexPrintf("Sorting edges\n");
+    
 	//sort the EDGEs depending on their reiability. The PIXELs with higher relibility (small value) first
 	//if your code stuck because of the quicker_sort() function, then use the quick_sort() function
 	//run only one of the two functions (quick_sort() or quicker_sort() )
 	//quick_sort(edge, No_of_Edges);
 	quicker_sort(edge, edge + No_of_Edges - 1);
+    
+    EDGE *edge_pointer = edge;
+    PIXEL *PIXEL1;   
+	PIXEL *PIXEL2;
+    double diff;
+    
+    int a;
+
+    /*for(a=0; a<No_of_Edges;a++){
+        PIXEL1 = edge_pointer->pointer_1;
+		PIXEL2 = edge_pointer->pointer_2;
+        diff = PIXEL1->value - PIXEL2->value;
+
+        sprintf (mybuff1, "%d", edge_pointer->increment);
+        sprintf (mybuff2, "%f", edge_pointer->reliab);
+        sprintf (mybuff3, "%f", diff);
+        
+        mexPrintf(mybuff1);
+        mexPrintf(" : ");
+        mexPrintf(mybuff2);
+        mexPrintf("---");
+        mexPrintf(mybuff3);
+        mexPrintf("\n");
+        edge_pointer++;
+    }*/
+    
+    mexPrintf("Gathering the pixels...\n");
 	
 	//gather PIXELs into groups
 	gatherPIXELs(edge, image_width, image_height);
 
+    pixel_pointer = pixel;
+    /*for(i=0; i<image_size;++i){
+        sprintf (mybuff1, "%d", pixel_pointer->increment);
+        mexPrintf(mybuff1);
+        mexPrintf("\n");
+        pixel_pointer++;
+    }*/
+    
 	//unwrap the whole image
 	unwrapImage(pixel, image_width, image_height);
 

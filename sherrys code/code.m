@@ -3,17 +3,29 @@ dx=0.424;
 dy=0.424;
 dz=1.503;
 
-input_folder = 'I:\Honours-Project\data\full trombus data\agg';
-output_folder = 'I:\Honours-Project\data\test dataset\agg';
+input_folder = 'I:\Honours-Project\data\observed\obj\microsphere_50_hydrogel1_21';
+input_folder = 'I:\Honours-Project\images\Final Presentation';
+input_folder = 'I:\Honours-Project\data\yujie';
+input_folder = 'I:\Honours-Project\data\full trombus data\2017.11.09\2';
+input_folder = 'C:\Users\Duo\Desktop\image data';
+input_folder = 'I:\Honours-Project\data\40x 0_70NA\02_09_2019';
+%input_folder = 'I:\Honours-Project\data\simulation\obj';
+output_folder = 'I:\Honours-Project\data\40x 0_70NA\02_09_2019\phase';
 UP = dir(strcat(input_folder, '\*.tif'));
 
 for index = 1:length(UP)
     %filename = UP(index).name;
-    filename = 'c1.tif';
+    filename = 'NE00_NE10_f2.tif';
+    %filename = '1-1.tif';
+    %filename = 'hologram_original_cropped.tif';
+    %filename = 'MATLAB_0003.avi_frame0.tif';
     input_dir = strcat(input_folder, '\', filename);
     [X,m] = imread(input_dir,1);
-    X=rgb2gray(X);
-    X=X(:,261:1000);
+    %X=rgb2gray(X);
+    %gray=load('test.mat');
+    %X=gray.gray;
+    %X=X(:,261:1000);
+    tic;
     [ phase, intensity, curve] = IP_sigle_hologram( X,0,1 );
     height=phase*dz;
     height_s= imfilter(height, fspecial('gaussian',[3*3+1 3*3+1],3));
@@ -33,7 +45,7 @@ for index = 1:length(UP)
     s = regionprops(bw3);
     B = bwboundaries(bw3);
     height_remove=height_s.*bw3;
-    csvwrite('height_r.csv',height_r);
+    % csvwrite('height_r.csv',height_r);
     [count,w]=size(s);
     %     boundary=ones(:,:,count);
     if count ~=0
@@ -50,6 +62,8 @@ for index = 1:length(UP)
         end
     end
     %%
+    
+    toc;
     
     figure1 = figure;
     axes1 =axes('Parent',figure1,'YDir','reverse','Layer','top','DataAspectRatio',[1 1 1]);

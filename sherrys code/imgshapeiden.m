@@ -13,8 +13,10 @@ level=graythresh(I_eq); %% Get the global thresh level
 % disp(level)
 % bw = im2bw(I_eq, level+0.05);
 % smalls=round((imx/20)*(imy/20)); %% set the dimension of small objective needed to be removed
-smalls=round((imx/25)*(imy/25));
-bigs=round((imx/2.5)*(imy/2.5));
+small = 30;
+big = 2;
+smalls=round((imx/small)*(imy/small));
+bigs=round((imx/big)*(imy/big));
 iy=1;  %% number of objects
 inc=0; %% thresholding increasement
 stp=level/100;% thresh level increment
@@ -41,6 +43,7 @@ while iy~=3
     end
     
 end
+imshow(bw4);
 B = bwboundaries(bw4);
 s_Image = regionprops(bw4,'Image');
 %%
@@ -92,7 +95,7 @@ else
     BoundingBox(2)=po(2)-halfy;
 end
 
-BoundingBox = [390,272.5,203,100];
+%BoundingBox = [129,134,32,22];
 
 %%
 % amount = inc+0.3;
